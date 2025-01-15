@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte Leaflet avec GeoJSON</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <style>
+        #map {
+            height: 80vh;
+        }
+    </style>
+</head>
+<body>
+    <button id="cinemaButton" style="position: absolute; top: 10px; left: 50px; z-index: 1000;" >Afficher Cinémas à 40km</button>
+    <button id="clearButton" style="position: absolute; top: 10px; left: 280px; z-index: 1000;" >Clear la map</button>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="functions.js"></script>
+    <script> // Variables
+        const fichierGeoNom = 'merged.geojson';
+        let geojsonData;
+        let geojsonLayer;
+        const map = L.map('map').setView([48.8566, 2.3522], 11); // Coordonnées de Paris
+        let userX = 2.3522
+        let userY = 48.8566
+        let userRayon = 40
+
+        
+        const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+    </script>
+
+    <script>// DOM
+        document.getElementById('cinemaButton').addEventListener('click',  showCinemas);
+        document.getElementById('clearButton').addEventListener('click',  removeMap);
+    </script>
+
+    <script> // main
+        initGeoJsonFile();
+    </script>
+</body>
+</html>
