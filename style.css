@@ -22,32 +22,146 @@ html{
 body{
     display: flex;
     background-color: #F8F9FA;
-    padding: 20px;
     width: 99vw;
     margin: 0;
     gap: 10px;
+    height: 100%;
 }
 .containerLeft{
-    flex: 2;
+    flex: 3;
+    gap: 10px;
+    height: 100%;
+    margin-left: 15px;
+    &>div{
+        margin: 10px;
+    }
 }
 .containerRight{
     flex: 1;
 }
-.search{
+#search{
     display: flex;
     gap: 10px;
+    height: 6%;
     &>div{
         display: flex;
         align-items: center;
+        height: 25px;
     }
     & img#pointer{
-        width: 30px;
-        height: 30px;
+        width: 25px;
+        height: 25px;
         &:hover{
             cursor: grab;
         }
     }
 }
+#map {
+    background-color: #DD2E44;
+    height: 67%;
+    border-radius: 20px;
+    display: flex;
+}
+#filters {
+    background-color: #f5f5f5;
+    display: flex;
+    gap: 15px;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+#range, #typeActivity, #otherFilter {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 15px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#range {
+    flex: 2;
+    &>div:first-child{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+.range-title, .activity-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.slider {
+    accent-color: #DD2E44;
+    border: none;
+    outline: none;
+    height: 8px;
+}
+
+
+.slider:hover {
+    background: #d0d0d0;
+}
+
+.transport-icons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    &>div{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        &>div {
+            background-color: #F8F9FA;
+            border-radius: 10px;
+            height: 55px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            &:hover{
+                cursor: pointer;
+                background-color: #f5f5f5;
+            }
+        }
+        & img {
+            width: 40px;
+            padding: 6px 12px;
+        }
+    }
+}
+
+.activity-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.activity-item {
+    background-color: #fbdada;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.activity-item:hover {
+    background-color: #f8bdbd;
+}
+
+.activity-item[data-selected="true"] {
+    background-color: #ff7a7a;
+    color: #ffffff;
+}
+
+
+
 .white{
     background-color: #fff;
     padding: 15px;

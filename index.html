@@ -7,7 +7,7 @@
 </head>
 <body>
 <div class="containerLeft">
-    <div class="search">
+    <div id="search">
         <div class="searchInput white">
             <input type="text" placeholder="Rechercher..." id="searchInput">
         </div>
@@ -15,8 +15,51 @@
             <img src="images/pointer.png" alt="Pointer" id="pointer">
         </div>
     </div>
-    <div class="map"></div>
-    <div class="filters"></div>
+    <div id="map"></div>
+    <div id="filters">
+        <div id="range">
+            <div>
+                <div class="range-title">Distance maximale</div>
+                <div id="rangeValue">5km</div>
+            </div>
+            <input type="range" min="500" max="30000" value="5000" step="1" class="slider" id="rangeSlider">
+            <div class="transport-icons">
+                <div>
+                    <div><img src="images/nike.png" alt="Walking" data-value="500"></div>
+                    <span>500m</span>
+                </div>
+                <div>
+                    <div><img src="images/nike.png" alt="Walking" data-value="1000"></div>
+                    <span>1km</span>
+                </div>
+                <div>
+                    <div><img src="images/bike.png" alt="Bike" data-value="5000"></div>
+                    <span>5km</span>
+                </div>
+                <div>
+                    <div><img src="images/bike.png" alt="Bike" data-value="10000"></div>
+                    <span>10km</span>
+                </div>
+                <div>
+                    <div><img src="images/car.png" alt="Car" data-value="20000"></div>
+                    <span>20km</span>
+                </div>
+            </div>
+        </div>
+        <div id="typeActivity">
+            <div class="activity-title">Types d'activités</div>
+            <div class="activity-options">
+                <div class="activity-item" data-selected="false">AQUARIUMS</div>
+                <div class="activity-item" data-selected="false">CINEMAS</div>
+<!--                <div class="activity-item" data-selected="false">FESTIVALS</div>-->
+<!--                <div class="activity-item" data-selected="false">PARCS D'ATTRACTIONS</div>-->
+<!--                <div class="activity-item" data-selected="false">STATIONS DE SKI</div>-->
+            </div>
+        </div>
+        <div id="otherFilter">
+            Autres filtres
+        </div>
+    </div>
 </div>
 <div class="containerRight">
     <div class="activities">
@@ -35,4 +78,5 @@
     </div>
 </div>
 </body>
+<script src="script.js"></script>
 </html>
