@@ -25,7 +25,7 @@ function getFilter(type) {
         features: geojsonData.features.filter(feature => {
             if (feature.properties.type === type) {
                 const [lon, lat] = feature.geometry.coordinates;
-                return haversineDistance(userY, userX, lat, lon) <= userRayon;
+                return haversineDistance(localStorage.getItem('userY'), localStorage.getItem('userX'), lat, lon) <= localStorage.getItem('userRayon');
             }
             return false;
         })
@@ -357,7 +357,7 @@ function removeMap(){
 ///     Le rayon de recherche (userRayon)
 async function addElementToMap(type){
     console.log("addElementToMap - start - type:",type);
-    if (userX !== null && userY !== null && userRayon !== null && type !== null){
+    if (localStorage.getItem('userX') !== null && localStorage.getItem('userY') !== null && localStorage.getItem('userRayon') !== null && type !== null){
     const filteredData = getFilter(type); // type de filtrage
     const displayOptions = getDisplayOptions(type); // pour avoir un affichage diff pour chaque type.
 
