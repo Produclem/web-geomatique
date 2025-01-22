@@ -83,6 +83,39 @@ async function addElementToMap(type){
 }
 
 
+// Charger tous les types de données :
+// 1. types (cinema, ski, musee, jardin, festival, equipement)
+// 2. equipmentTypes (terrain de petanque, mur à gauche ...)
+
+// Pour récup faire un :
+// const { types, equipmentTypes } = getAllTypes();
+function getAllTypes() {
+    if (!geojsonData || !geojsonData.features) {
+        console.error("[Erreur chargement des types] - Les données GeoJSON ne sont pas chargées.");
+        return { types: [], equipmentTypes: [] };
+    }
+
+    const typesSet = new Set();
+    const equipmentTypesSet = new Set();
+
+    geojsonData.features.forEach(feature => {
+        if (feature.properties && feature.properties.type) {
+            const type = feature.properties.type;
+            typesSet.add(type);
+            if (type === "equipement" && feature.properties.types_equipement) {
+                equipmentTypesSet.add(feature.properties.types_equipement);
+            }
+        }
+    });
+    // console.log("Types trouvés :", Array.from(typesSet));
+    // console.log("Types d'équipements trouvés :", Array.from(equipmentTypesSet));
+    return {
+        types: Array.from(typesSet), // Convertir le Set en tableau
+        equipmentTypes: Array.from(equipmentTypesSet) // Convertir le Set en tableau
+    };
+}
+
+
 async function showCinemas() {
     addElementToMap('cinema');
 }

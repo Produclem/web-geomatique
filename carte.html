@@ -37,6 +37,11 @@
     <script>// DOM
         document.getElementById('cinemaButton').addEventListener('click',  showCinemas);
         document.getElementById('clearButton').addEventListener('click',  removeMap);
+
+    document.getElementById('cinemaButton').addEventListener('click', () => {
+        const { types, equipmentTypes } = getAllTypes();
+        console.log("Liste complète des types :", equipmentTypes);
+    });
     </script>
 
     <script> // main

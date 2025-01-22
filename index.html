@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="#">
 </head>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -51,19 +52,14 @@
                 </div>
             </div>
         </div>
-        <div id="typeActivity">
-            <div class="activity-title">Types d'activités</div>
-            <div class="activity-options">
-                <div class="activity-item" data-selected="false">AQUARIUMS</div>
-                <div class="activity-item" data-selected="false">CINEMAS</div>
-                <div class="activity-item" data-selected="false">FESTIVALS</div>
-                <div class="activity-item" data-selected="false">PARCS D'ATTRACTIONS</div>
-                <div class="activity-item" data-selected="false">STATIONS DE SKI</div>
+        <div class="parentTypeActivite">
+            <div class="listTypeActivities" id="activityTypeList">
+                <div class="activity-column" id="column1"></div>
+                <div class="activity-column" id="column2">
+                    <div id="equipment-button">Équipements sportifs <img src="images/arrow-square.png"></div>
+                </div>
             </div>
-        </div>
-        <div id="otherFilter">
-            <div class="activity-title">Activités sélectionnées</div>
-            <div id="listActivities"></div>
+            <div id="nbActivites"></div>
         </div>
     </div>
 </div>
@@ -85,6 +81,17 @@
         </div>
     </div>
 </div>
+    <div class="overlay" id="overlay"></div>
+    <div id="modal">
+        <div id="modal-header">
+            <h3>Équipements sportifs</h3>
+            <span id="modal-close">✖</span>
+        </div>
+        <div>
+            <input type="text" id="search-bar" placeholder="Rechercher un équipement..." />
+            <div><img src="images/checked.png" alt=":ok:"></div>
+        </div>
+        <div id="equipment-list"></div>
+    </div>
 </body>
-<script src="script.js"></script>
 </html>

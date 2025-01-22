@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inverser les coordonnées GeoJSON</title>
+</head>
+<body>
+    <h1>Inverser les coordonnées GeoJSON</h1>
+    <input type="file" id="fileInput" accept="application/json">
+    <button id="processButton">Inverser les coordonnées</button>
+    <a id="downloadLink" style="display: none;">Télécharger le fichier modifié</a>
+
+    <script>
+        document.getElementById('processButton').addEventListener('click', () => {
+            const fileInput = document.getElementById('fileInput');
+
+            if (fileInput.files.length === 0) {
+                alert('Veuillez sélectionner un fichier JSON.');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = (event) => {
+                try {
+                    const jsonData = JSON.parse(event.target.result);
+
+                    if (!jsonData.features || !Array.isArray(jsonData.features)) {
+                        alert('Le fichier ne contient pas un tableau "features" valide.');
+                        return;
+                    }
+
+                    jsonData.features.forEach(feature => {
+                        if (feature.geometry && feature.geometry.coordinates && Array.isArray(feature.geometry.coordinates)) {
+                            const coords = feature.geometry.coordinates;
+                            if (coords.length === 2) {
+                                [coords[0], coords[1]] = [coords[1], coords[0]]; // Inverser les coordonnées
+                            }
+                        }
+                    });
+
+                    const modifiedData = JSON.stringify(jsonData, null, 2);
+                    const blob = new Blob([modifiedData], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+
+                    const downloadLink = document.getElementById('downloadLink');
+                    downloadLink.href = url;
+                    downloadLink.download = 'modified_geojson.json';
+                    downloadLink.style.display = 'inline';
+                    downloadLink.textContent = 'Télécharger le fichier modifié';
+                } catch (error) {
+                    alert('Erreur lors du traitement du fichier : ' + error.message);
+                }
+            };
+
+            reader.readAsText(file);
+        });
+    </script>
+</body>
+</html>
