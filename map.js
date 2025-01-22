@@ -672,7 +672,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const rangeValue = document.getElementById("rangeValue");
     slider.addEventListener("input", () => {
         const value = slider.value;
-        rangeValue.textContent = value < 1000 ? `${value}m` : `${value / 1000}km`;
+        rangeValue.textContent = value < 1000 ? `${value}m` : `${(value / 1000).toFixed(1)}km`;
         localStorage.setItem("userRayon",(value/1000))
         updateDisplayActivity();
     });
@@ -682,7 +682,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         item.addEventListener('click', () => {
             const isSelected = item.getAttribute('data-selected') === 'true';
             item.setAttribute('data-selected', !isSelected);
+
         });
     });
+
 
 });
