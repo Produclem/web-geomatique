@@ -39,9 +39,9 @@ async function initGeoJsonFile() {
     try {
         const response = await fetch(fichierGeoNom);
         geojsonData = await response.json();
-        console.log("merged.geojson chargé");
+        console.log("Fichier GeoJSON chargé avec succès.");
     } catch (error) {
-        console.error("[Erreur] - initGeoJsonFile - chargement fichier GeoJSON:", error);
+        console.error("Erreur lors du chargement du fichier GeoJSON :", error);
     }
 }
 
@@ -336,16 +336,13 @@ function getDisplayOptions(type) {
 
 
 /// Permet de retirer le layer de la map
-function removeMap(){
-    const baseLayer = tileLayer;
-    
-    map.eachLayer(function(layer) {
-        if (layer !== baseLayer) {
+function removeMap() {
+    map.eachLayer(layer => {
+        if (layer !== map.baseLayer) {
             map.removeLayer(layer);
         }
     });
-    
-    console.log("removeMap - layer remove")
+    console.log("Carte nettoyée.");
 }
 
 /// Permet l'ajout de données à la map
