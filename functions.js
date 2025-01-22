@@ -45,6 +45,7 @@ async function initGeoJsonFile() {
     }
 }
 
+/// Permet d'avoir un affichage pour chaque type
 function getDisplayOptions(type) {
     const options = {
         cinema: {
@@ -86,30 +87,35 @@ function getDisplayOptions(type) {
                 if (feature.properties && feature.properties.nom_jardin) {
                     let siteWebLinks = '';
                     
+                    // avoir plusieurs liens 
                     if (feature.properties.site_web) {
                         try {
                             const siteWebArray = JSON.parse(feature.properties.site_web);
+                            
                             if (Array.isArray(siteWebArray)) {
                                 siteWebArray.forEach(url => {
                                     siteWebLinks += `<p style="margin: 0; font-size: 0.9em;">
                                                         <a href="${url}" target="_blank">site web</a>
                                                      </p>`;
                                 });
+                            } else {
+                                console.error("site_web n'est pas un tableau:", feature.properties.site_web);
                             }
-                        } catch (e) {console.error("Erreur parsing :", e);}
+                        } catch (e) {
+                            console.error("Erreur lors du parsing de site_web:", e);
+                        }
                     }
             
-                    // Tronquer la description si elle est trop longue
+                    // description trop longue
                     let description = feature.properties.description || '';
-                    const MAX_DESCRIPTION_LENGTH = 100; // Limite des caractères avant tronquage
+                    const MAX_DESCRIPTION_LENGTH = 200;
                     let truncatedDescription = description;
                     let readMoreButton = '';
-
                     if (description.length > MAX_DESCRIPTION_LENGTH) {
                         truncatedDescription = description.substring(0, MAX_DESCRIPTION_LENGTH) + '...';
-                        readMoreButton = `<button style="background: none; border: none; color: ${jardinColor}; cursor: pointer;" class="read-more">Lire plus</button>`;
+                        readMoreButton = `<button style="background: none; border: none; color: ${btnColor}; cursor: pointer;" class="read-more">Lire plus</button>`;
                     }
-                    
+            
                     layer.bindPopup(`
                         <div>
                             <div>
@@ -123,29 +129,197 @@ function getDisplayOptions(type) {
                             ${readMoreButton}
                         </div>
                     `);
-
+            
+                    // Event lire plus (merci internet)
                     layer.on('popupopen', () => {
                         const button = layer.getPopup().getElement().querySelector('.read-more');
                         if (button) {
                             button.addEventListener('click', () => {
                                 const descriptionSpan = layer.getPopup().getElement().querySelector('.description');
                                 if (descriptionSpan) {
-                                    // Afficher la description complète
-                                    descriptionSpan.textContent = feature.properties.description;
-                                    button.textContent = 'Lire moins';
-                                    button.addEventListener('click', () => {
-                                        // Réduire à la description tronquée
+                                    // Si le texte est tronqué, on l'affiche en entier
+                                    if (button.textContent === 'Lire plus') {
+                                        descriptionSpan.textContent = feature.properties.description;
+                                        button.textContent = 'Lire moins';
+                                    } else {
+                                        // Sinon, on tronque de nouveau le texte
                                         descriptionSpan.textContent = truncatedDescription;
                                         button.textContent = 'Lire plus';
-                                    });
+                                    }
                                 }
                             });
                         }
                     });
                 }
             },
+            
                        
             
+        },
+        musee: {
+            pointToLayer: (feature, latlng) => {
+                const cinemaIcon = L.icon({
+                    iconUrl: gobalUrl+"/images/musee.png",
+                    iconSize: displayIconSize,
+                    iconAnchor: displayIconAnchor,
+                    popupAnchor: displayPopupAnchor,
+                });
+                return L.marker(latlng, { icon: cinemaIcon });
+            },
+            onEachFeature: (feature, layer) => {
+                if (feature.properties && feature.properties.nom) {
+                    layer.bindPopup(`
+                        <div>
+                            <div>
+                                <img src="${gobalUrl + '/images/musee.png'}" width="20" height="20" style="vertical-align: middle;">
+                                <h3 style="margin: 0; color: ${cinemaColor}; display: inline; vertical-align: middle;">${feature.properties.nom.charAt(0).toUpperCase() + feature.properties.nom.slice(1)}</h3>
+                            </div>
+                            <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Adresse : ${feature.properties.adresse}</p>
+                            <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Téléphone : ${feature.properties.tel}</p>
+                            <p style="margin: 0; font-size: 0.9em;">
+                                <a href="${"https://"+feature.properties.site_web}" target="_blank">Site web</a>
+                            </p>
+                        </div>
+                    `);
+                }
+            },
+        },
+        ski: {
+            pointToLayer: (feature, latlng) => {
+                const cinemaIcon = L.icon({
+                    iconUrl: gobalUrl+"/images/ski.png",
+                    iconSize: displayIconSize,
+                    iconAnchor: displayIconAnchor,
+                    popupAnchor: displayPopupAnchor,
+                });
+                return L.marker(latlng, { icon: cinemaIcon });
+            },
+            onEachFeature: (feature, layer) => {
+                if (feature.properties && feature.properties.nom) {
+                    // description trop longue
+                    let description = feature.properties.description || '';
+                    const MAX_DESCRIPTION_LENGTH = 200;
+                    let truncatedDescription = description;
+                    let readMoreButton = '';
+                    if (description.length > MAX_DESCRIPTION_LENGTH) {
+                        truncatedDescription = description.substring(0, MAX_DESCRIPTION_LENGTH) + '...';
+                        readMoreButton = `<button style="background: none; border: none; color: ${btnColor}; cursor: pointer;" class="read-more">Lire plus</button>`;
+                    }
+
+                    // pour le moment pas de description car elles sont très mauvaises
+                    layer.bindPopup(`
+                        <div>
+                            <div>
+                                <img src="${gobalUrl + '/images/ski.png'}" width="20" height="20" style="vertical-align: middle;">
+                                <h3 style="margin: 0; color: ${skiColor}; display: inline; vertical-align: middle;">${feature.properties.nom.charAt(0).toUpperCase() + feature.properties.nom.slice(1)}</h3>
+                            </div>
+                            
+                        </div>
+                    `);
+
+                    // Event lire plus (merci internet)
+                    layer.on('popupopen', () => {
+                        const button = layer.getPopup().getElement().querySelector('.read-more');
+                        if (button) {
+                            button.addEventListener('click', () => {
+                                const descriptionSpan = layer.getPopup().getElement().querySelector('.description');
+                                if (descriptionSpan) {
+                                    // Si le texte est tronqué, on l'affiche en entier
+                                    if (button.textContent === 'Lire plus') {
+                                        descriptionSpan.textContent = feature.properties.description;
+                                        button.textContent = 'Lire moins';
+                                    } else {
+                                        // Sinon, on tronque de nouveau le texte
+                                        descriptionSpan.textContent = truncatedDescription;
+                                        button.textContent = 'Lire plus';
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            },
+        },
+        attraction: {
+            pointToLayer: (feature, latlng) => {
+                const cinemaIcon = L.icon({
+                    iconUrl: gobalUrl+"/images/attraction.png",
+                    iconSize: displayIconSize,
+                    iconAnchor: displayIconAnchor,
+                    popupAnchor: displayPopupAnchor,
+                });
+                return L.marker(latlng, { icon: cinemaIcon });
+            },
+            onEachFeature: (feature, layer) => {
+                if (feature.properties && feature.properties.nom) {
+                    layer.bindPopup(`
+                        <div>
+                            <div>
+                                <img src="${gobalUrl + '/images/attraction.png'}" width="20" height="20" style="vertical-align: middle;">
+                                <h3 style="margin: 0; color: ${attractionColor}; display: inline; vertical-align: middle;">${feature.properties.nom}</h3>
+                            </div>
+                        </div>
+                    `);
+                }
+            },
+        },
+        equipement: {
+            pointToLayer: (feature, latlng) => {
+                const cinemaIcon = L.icon({
+                    iconUrl: gobalUrl+"/images/equipement.png",
+                    iconSize: displayIconSize,
+                    iconAnchor: displayIconAnchor,
+                    popupAnchor: displayPopupAnchor,
+                });
+                return L.marker(latlng, { icon: cinemaIcon });
+            },
+            onEachFeature: (feature, layer) => {
+                if (feature.properties && feature.properties.nom) {
+                    layer.bindPopup(`
+                        <div>
+                            <div>
+                                <img src="${gobalUrl + '/images/equipement.png'}" width="20" height="20" style="vertical-align: middle;">
+                                <h3 style="margin: 0; color: ${equipementColor}; display: inline; vertical-align: middle;">${feature.properties.nom}</h3>
+                            </div>
+                            <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Ville : ${feature.properties.departement} - ${feature.properties.commune}</p>
+                            <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Type équipement : ${feature.properties.famille_equipement}</p>
+                            <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Zone : ${feature.properties.zone}</p>
+
+                        </div>
+                    `);
+                }
+            },
+        },
+        festival: {
+            pointToLayer: (feature, latlng) => {
+                const cinemaIcon = L.icon({
+                    iconUrl: gobalUrl+"/images/festival.png",
+                    iconSize: displayIconSize,
+                    iconAnchor: displayIconAnchor,
+                    popupAnchor: displayPopupAnchor,
+                });
+                return L.marker(latlng, { icon: cinemaIcon });
+            },
+            onEachFeature: (feature, layer) => {
+                console.log(feature.properties && feature.properties.nom );
+                if (feature.properties) {
+                    layer.bindPopup(`
+                        <div>
+                            <div>
+                                <img src="${gobalUrl + '/images/festival.png'}" width="20" height="20" style="vertical-align: middle;">
+                                <h3 style="margin: 0; color: ${festivalColor}; display: inline; vertical-align: middle;">${feature.properties.nom}</h3>
+                            </div>
+                            <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Ville : ${feature.properties.departement} - ${feature.properties.commune}</p>
+                            <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Type festival : ${feature.properties.types_festival}</p>
+                            <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Periode : ${feature.properties.periode}</p>
+                            <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Création : ${feature.properties.annee_creation}</p>
+                            <p style="margin: 0; font-size: 0.9em;">
+                                <a href="${feature.properties.site_web}" target="_blank">Site web</a>
+                            </p>
+                        </div>
+                    `);
+                }
+            },
         },
     };
 
@@ -210,3 +384,22 @@ async function showJardins() {
     addElementToMap('jardin');
 }
 
+async function showMusees() {
+    addElementToMap('musee');
+}
+
+async function showAttractions() {
+    addElementToMap('attraction');
+}
+
+async function showSki() {
+    addElementToMap('ski');
+}
+
+async function showFestivals() {
+    addElementToMap('festival');
+}
+
+async function showEquipements() {
+    addElementToMap('equipement');
+}

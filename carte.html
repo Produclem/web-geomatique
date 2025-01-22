@@ -13,8 +13,14 @@
 </head>
 <body>
     <button id="cinemaButton" style="position: absolute; top: 10px; left: 50px; z-index: 1000;" >Cinémas</button>
-    <button id="jardinButton" style="position: absolute; top: 10px; left: 250px; z-index: 1000;" >Jardin</button>
-    <button id="clearButton" style="position: absolute; top: 10px; left: 380px; z-index: 1000;" >Clear la map</button>
+    <button id="jardinButton" style="position: absolute; top: 10px; left: 150px; z-index: 1000;" >Jardin</button>
+    <button id="museeButton" style="position: absolute; top: 10px; left: 250px; z-index: 1000;" >Musee</button>
+    <button id="attractionButton" style="position: absolute; top: 10px; left: 320px; z-index: 1000;" >Attraction</button>
+    <button id="skiButton" style="position: absolute; top: 10px; left: 400px; z-index: 1000;" >Ski</button>
+    <button id="festivalButton" style="position: absolute; top: 10px; left: 450px; z-index: 1000;" >Festival</button>
+    <button id="equipementButton" style="position: absolute; top: 10px; left: 500px; z-index: 1000;" >Equipement</button>
+
+    <button id="clearButton" style="position: absolute; top: 10px; left: 800px; z-index: 1000;" >Clear la map</button>
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -24,6 +30,12 @@
     <script>// DOM
         document.getElementById('cinemaButton').addEventListener('click',  showCinemas);
         document.getElementById('jardinButton').addEventListener('click',  showJardins);
+        document.getElementById('museeButton').addEventListener('click',  showMusees);
+        document.getElementById('attractionButton').addEventListener('click',  showAttractions);
+        document.getElementById('skiButton').addEventListener('click',  showSki);
+        document.getElementById('festivalButton').addEventListener('click',  showFestivals);
+        document.getElementById('equipementButton').addEventListener('click',  showEquipements);
+
         document.getElementById('clearButton').addEventListener('click',  removeMap);
     </script>
 
