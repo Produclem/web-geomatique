@@ -374,8 +374,8 @@ async function addElementToMap(type){
 
 
 
-
 // fonction test (temporaire) :
+
 async function showCinemas() {
     addElementToMap('cinema');
 }
