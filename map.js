@@ -72,7 +72,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 })
             }; 
         }else{// c'est un équipement
-            console.log("inside")
             return getFilterEquipement(type);
         }
     }
@@ -86,7 +85,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             features: geojsonData.features.filter(feature =>{
                 if(feature.properties.type == "equipement" && feature.properties.types_equipement === typeEquipement){
                     const [lon, lat] = feature.geometry.coordinates;
-                    console.log("getFilterEquipement",typeEquipement)
                     return haversineDistance(localStorage.getItem('userY'), localStorage.getItem('userX'), lat, lon) <= localStorage.getItem('userRayon');                    
                 }
             })
@@ -423,7 +421,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
         
-        console.log("removeMap - layer remove")
+        console.log("Map clear")
     }
 
     /// Permet l'ajout de données à la map
@@ -434,11 +432,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     ///     La position de l'utilisateur (userX et userY)
     ///     Le rayon de recherche (userRayon)
     async function addElementToMap(type){
-        console.log("addElementToMap - start - type:",type);
         if (localStorage.getItem('userX') !== null && localStorage.getItem('userY') !== null && localStorage.getItem('userRayon') !== null && type !== null){
             const filteredData = getFilter(type);
             const displayOptions = getDisplayOptions(type); // pour avoir un affichage diff pour chaque type.
-
+            console.log("élement ajouter à la map,",type)
             geojsonLayer = L.geoJSON(filteredData, {
                 ...displayOptions,
             }).addTo(map);
@@ -447,7 +444,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.log("[Erreur] - addElementToMap - faild - l'une des données est nulle");
             return;
         }
-        console.log("addElementToMap - end - type:",type);
     }
 
     function updateActivityCount() {
@@ -537,7 +533,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     /* === GESTION DE LA CARTE === */
     window.onload = async () => {
-        
 
         // Afficher le loader
         loader.style.display = "flex";
@@ -674,10 +669,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                 checkbox.addEventListener('change', () => {
                     if (checkbox.checked) {
                         addActivityToLocalStorage(equip);
-                        console.log("add",equip)
                     } else {
                         removeActivityFromLocalStorage(equip);
-                        console.log("remove",equip)
                     }
                 });
 
@@ -701,7 +694,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             showOnlyChecked = !showOnlyChecked;
         });
 
+        // auto actualisation de la carte
         updateActivityCount();
+        updateDisplayActivity();
     };
 
     /* === GESTION DES INTERACTIONS UTILISATEURS === */
