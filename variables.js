@@ -6,7 +6,7 @@ const gobalUrl ="http://0.0.0.0:8000";
 
 let geojsonData;
 let geojsonLayer;
-const map = L.map('map').setView([48.8566, 2.3522], 11); // Cpar defaut sur paris
+let map = L.map('map').setView([48.8566, 2.3522], 11); // Cpar defaut sur paris
 
 // position de l'utilisateur (par defaut sur paris)
 localStorage.setItem("userY",48.8566);
