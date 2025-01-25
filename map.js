@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // fichier avec l'ensemble des données 
     const fichierGeoNom = 'merged.geojson';
 
-    const gobalUrl ="http://0.0.0.0:8000";
+    const baseUrl = window.location.origin; 
 
     let geojsonData;
     let geojsonLayer;
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
     // display :
-    const displayIconSize = [20, 20];
+    const displayIconSize = [22, 22];
     const displayIconAnchor = [12, 25];
     const displayPopupAnchor = [0, -25];
 
@@ -46,36 +46,51 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.body.appendChild(loader);
 
     /* === FONCTIONS UTILITAIRES === */
+    // Calculer la distance entre deux points (Haversine) - merci Internet :)
+    function haversineDistance(lat1, lon1, lat2, lon2) {
+        const EARTH_RADIUS_KM = 6371; 
+        const toRadians = angle => angle * Math.PI / 180;
+        const dLat = toRadians(lat2 - lat1);
+        const dLon = toRadians(lon2 - lon1);
+        const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(dLon / 2) ** 2;
+        return 2 * EARTH_RADIUS_KM * Math.asin(Math.sqrt(a));
+    }
     /// Permet d'avoir une liste d'event autour de l'utilisateur
     /// 
     /// input :
     ///     type -> string du type de données Ex: 'cinema'
     function getFilter(type) {
-        const EARTH_RADIUS_KM = 6371; 
-
-        // Calculer la distance entre deux points (Haversine) - merci Internet :)
-        function haversineDistance(lat1, lon1, lat2, lon2) {
-            const toRadians = angle => angle * Math.PI / 180;
-            const dLat = toRadians(lat2 - lat1);
-            const dLon = toRadians(lon2 - lon1);
-
-            const a = Math.sin(dLat / 2) ** 2 +
-                    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(dLon / 2) ** 2;
-
-            return 2 * EARTH_RADIUS_KM * Math.asin(Math.sqrt(a));
+        if(type === "cinema" || type === "jardin" ||type === "musee" ||type === "ski" ||type === "attraction" ||type === "festival"){
+           return {
+                ...geojsonData,
+                features: geojsonData.features.filter(feature => {
+                    if (feature.properties.type === type) {
+                        const [lon, lat] = feature.geometry.coordinates;
+                        return haversineDistance(localStorage.getItem('userY'), localStorage.getItem('userX'), lat, lon) <= localStorage.getItem('userRayon');
+                    }
+                    return false;
+                })
+            }; 
+        }else{// c'est un équipement
+            console.log("inside")
+            return getFilterEquipement(type);
         }
+    }
 
-        // Filtre les données 
-        return {
+    /// Permet d'avoir les équipements d'une certaine catégorie
+    /// input :
+    ///     typeEquipement -> string de types_equipement Ex : "Aire d'atterrissage"
+    function getFilterEquipement(typeEquipement){
+        return{
             ...geojsonData,
-            features: geojsonData.features.filter(feature => {
-                if (feature.properties.type === type) {
+            features: geojsonData.features.filter(feature =>{
+                if(feature.properties.type == "equipement" && feature.properties.types_equipement === typeEquipement){
                     const [lon, lat] = feature.geometry.coordinates;
-                    return haversineDistance(localStorage.getItem('userY'), localStorage.getItem('userX'), lat, lon) <= localStorage.getItem('userRayon');
+                    console.log("getFilterEquipement",typeEquipement)
+                    return haversineDistance(localStorage.getItem('userY'), localStorage.getItem('userX'), lat, lon) <= localStorage.getItem('userRayon');                    
                 }
-                return false;
             })
-        };
+        }
     }
 
     /// Permet de charger le fichier GeoJson avec l'ensemble des données
@@ -97,7 +112,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             cinema: {
                 pointToLayer: (feature, latlng) => {
                     const cinemaIcon = L.icon({
-                        iconUrl: gobalUrl+"/images/cinema.png",
+                        iconUrl: baseUrl+"/images/cinema.png",
                         iconSize: displayIconSize,
                         iconAnchor: displayIconAnchor,
                         popupAnchor: displayPopupAnchor,
@@ -109,7 +124,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         layer.bindPopup(`
                             <div>
                                 <div>
-                                    <img src="${gobalUrl + '/images/cinema.png'}" width="20" height="20" style="vertical-align: middle;">
+                                    <img src="${baseUrl + '/images/cinema.png'}" width="20" height="20" style="vertical-align: middle;">
                                     <h3 style="margin: 0; color: ${cinemaColor}; display: inline; vertical-align: middle;">${feature.properties.nom}</h3>
                                 </div>
                                 <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">adresse : ${feature.properties.adresse}</p>
@@ -122,7 +137,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             jardin: {
                 pointToLayer: (feature, latlng) => {
                     const cinemaIcon = L.icon({
-                        iconUrl: gobalUrl+"/images/jardin.png",
+                        iconUrl: baseUrl+"/images/jardin.png",
                         iconSize: displayIconSize,
                         iconAnchor: displayIconAnchor,
                         popupAnchor: displayPopupAnchor,
@@ -165,7 +180,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         layer.bindPopup(`
                             <div>
                                 <div>
-                                    <img src="${gobalUrl + '/images/jardin.png'}" width="20" height="20" style="vertical-align: middle;">
+                                    <img src="${baseUrl + '/images/jardin.png'}" width="20" height="20" style="vertical-align: middle;">
                                     <h3 style="margin: 0; color: ${jardinColor}; display: inline; vertical-align: middle;">${feature.properties.nom_jardin}</h3>
                                 </div>
                                 <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Adresse : ${feature.properties.adresse_complete}</p>
@@ -205,7 +220,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             musee: {
                 pointToLayer: (feature, latlng) => {
                     const cinemaIcon = L.icon({
-                        iconUrl: gobalUrl+"/images/musee.png",
+                        iconUrl: baseUrl+"/images/musee.png",
                         iconSize: displayIconSize,
                         iconAnchor: displayIconAnchor,
                         popupAnchor: displayPopupAnchor,
@@ -217,7 +232,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         layer.bindPopup(`
                             <div>
                                 <div>
-                                    <img src="${gobalUrl + '/images/musee.png'}" width="20" height="20" style="vertical-align: middle;">
+                                    <img src="${baseUrl + '/images/musee.png'}" width="20" height="20" style="vertical-align: middle;">
                                     <h3 style="margin: 0; color: ${cinemaColor}; display: inline; vertical-align: middle;">${feature.properties.nom.charAt(0).toUpperCase() + feature.properties.nom.slice(1)}</h3>
                                 </div>
                                 <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Adresse : ${feature.properties.adresse}</p>
@@ -233,7 +248,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             ski: {
                 pointToLayer: (feature, latlng) => {
                     const cinemaIcon = L.icon({
-                        iconUrl: gobalUrl+"/images/ski.png",
+                        iconUrl: baseUrl+"/images/ski.png",
                         iconSize: displayIconSize,
                         iconAnchor: displayIconAnchor,
                         popupAnchor: displayPopupAnchor,
@@ -256,7 +271,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         layer.bindPopup(`
                             <div>
                                 <div>
-                                    <img src="${gobalUrl + '/images/ski.png'}" width="20" height="20" style="vertical-align: middle;">
+                                    <img src="${baseUrl + '/images/ski.png'}" width="20" height="20" style="vertical-align: middle;">
                                     <h3 style="margin: 0; color: ${skiColor}; display: inline; vertical-align: middle;">${feature.properties.nom.charAt(0).toUpperCase() + feature.properties.nom.slice(1)}</h3>
                                 </div>
                                 
@@ -289,7 +304,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             attraction: {
                 pointToLayer: (feature, latlng) => {
                     const cinemaIcon = L.icon({
-                        iconUrl: gobalUrl+"/images/attraction.png",
+                        iconUrl: baseUrl+"/images/attraction.png",
                         iconSize: displayIconSize,
                         iconAnchor: displayIconAnchor,
                         popupAnchor: displayPopupAnchor,
@@ -301,7 +316,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         layer.bindPopup(`
                             <div>
                                 <div>
-                                    <img src="${gobalUrl + '/images/attraction.png'}" width="20" height="20" style="vertical-align: middle;">
+                                    <img src="${baseUrl + '/images/attraction.png'}" width="20" height="20" style="vertical-align: middle;">
                                     <h3 style="margin: 0; color: ${attractionColor}; display: inline; vertical-align: middle;">${feature.properties.nom}</h3>
                                 </div>
                             </div>
@@ -312,7 +327,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             equipement: {
                 pointToLayer: (feature, latlng) => {
                     const cinemaIcon = L.icon({
-                        iconUrl: gobalUrl+"/images/equipement.png",
+                        iconUrl: baseUrl+"/images/equipement.png",
                         iconSize: displayIconSize,
                         iconAnchor: displayIconAnchor,
                         popupAnchor: displayPopupAnchor,
@@ -324,7 +339,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         layer.bindPopup(`
                             <div>
                                 <div>
-                                    <img src="${gobalUrl + '/images/equipement.png'}" width="20" height="20" style="vertical-align: middle;">
+                                    <img src="${baseUrl + '/images/equipement.png'}" width="20" height="20" style="vertical-align: middle;">
                                     <h3 style="margin: 0; color: ${equipementColor}; display: inline; vertical-align: middle;">${feature.properties.nom}</h3>
                                 </div>
                                 <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Ville : ${feature.properties.departement} - ${feature.properties.commune}</p>
@@ -339,7 +354,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             festival: {
                 pointToLayer: (feature, latlng) => {
                     const cinemaIcon = L.icon({
-                        iconUrl: gobalUrl+"/images/festival.png",
+                        iconUrl: baseUrl+"/images/festival.png",
                         iconSize: displayIconSize,
                         iconAnchor: displayIconAnchor,
                         popupAnchor: displayPopupAnchor,
@@ -351,7 +366,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         layer.bindPopup(`
                             <div>
                                 <div>
-                                    <img src="${gobalUrl + '/images/festival.png'}" width="20" height="20" style="vertical-align: middle;">
+                                    <img src="${baseUrl + '/images/festival.png'}" width="20" height="20" style="vertical-align: middle;">
                                     <h3 style="margin: 0; color: ${festivalColor}; display: inline; vertical-align: middle;">${feature.properties.nom}</h3>
                                 </div>
                                 <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Ville : ${feature.properties.departement} - ${feature.properties.commune}</p>
@@ -370,10 +385,29 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Defaut :
         return options[type] || {
-            pointToLayer: (feature, latlng) => L.circleMarker(latlng),
+            pointToLayer: (feature, latlng) => {
+                const cinemaIcon = L.icon({
+                    iconUrl: baseUrl+"/images/equipement.png",
+                    iconSize: displayIconSize,
+                    iconAnchor: displayIconAnchor,
+                    popupAnchor: displayPopupAnchor,
+                });
+                return L.marker(latlng, { icon: cinemaIcon });
+            },
             onEachFeature: (feature, layer) => {
                 if (feature.properties && feature.properties.nom) {
-                    layer.bindPopup(`<strong>${feature.properties.nom}</strong><br>Type: ${feature.properties.type}`);
+                    layer.bindPopup(`
+                        <div>
+                            <div>
+                                <img src="${baseUrl + '/images/equipement.png'}" width="20" height="20" style="vertical-align: middle;">
+                                <h3 style="margin: 0; color: ${equipementColor}; display: inline; vertical-align: middle;">${feature.properties.nom}</h3>
+                            </div>
+                            <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Ville : ${feature.properties.departement} - ${feature.properties.commune}</p>
+                            <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Type équipement : ${feature.properties.famille_equipement}</p>
+                            <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Zone : ${feature.properties.zone}</p>
+
+                        </div>
+                    `);
                 }
             },
         };
@@ -402,14 +436,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function addElementToMap(type){
         console.log("addElementToMap - start - type:",type);
         if (localStorage.getItem('userX') !== null && localStorage.getItem('userY') !== null && localStorage.getItem('userRayon') !== null && type !== null){
-        const filteredData = getFilter(type); // type de filtrage
-        const displayOptions = getDisplayOptions(type); // pour avoir un affichage diff pour chaque type.
+            const filteredData = getFilter(type);
+            const displayOptions = getDisplayOptions(type); // pour avoir un affichage diff pour chaque type.
 
-        geojsonLayer = L.geoJSON(filteredData, {
-            ...displayOptions,
-        }).addTo(map);
-
-        }else{
+            geojsonLayer = L.geoJSON(filteredData, {
+                ...displayOptions,
+            }).addTo(map);
+        }
+        else{
             console.log("[Erreur] - addElementToMap - faild - l'une des données est nulle");
             return;
         }
@@ -503,6 +537,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     /* === GESTION DE LA CARTE === */
     window.onload = async () => {
+        
+
         // Afficher le loader
         loader.style.display = "flex";
 
@@ -638,8 +674,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 checkbox.addEventListener('change', () => {
                     if (checkbox.checked) {
                         addActivityToLocalStorage(equip);
+                        console.log("add",equip)
                     } else {
                         removeActivityFromLocalStorage(equip);
+                        console.log("remove",equip)
                     }
                 });
 
