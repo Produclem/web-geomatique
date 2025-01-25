@@ -738,6 +738,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         updateDisplayActivity();
     });
 
+    // distances static
+    const staticElements = document.querySelectorAll(".static-distance");
+    let selectedDistance = 0;
+    staticElements.forEach(button => {
+        button.addEventListener('click', function() {
+            selectedDistance = parseInt(button.getAttribute('data-value'));
+            localStorage.setItem("userRayon",(selectedDistance/1000))
+            updateDisplayActivity();
+        });
+    });
+    
+
     // Sélection des activités
     document.querySelectorAll('.activity-item').forEach(item => {
         item.addEventListener('click', () => {
