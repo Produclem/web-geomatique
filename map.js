@@ -45,6 +45,34 @@ document.addEventListener("DOMContentLoaded", async () => {
     loader.innerHTML = `<img src="images/loader2.gif" alt="Chargement...">`;
     document.body.appendChild(loader);
 
+    /* === AJOUT DU POINTEUR === */
+    const IconPointeur = L.icon({
+        iconUrl: baseUrl+"/images/pointer.png",
+        iconSize: [displayIconSize[0]+5,displayIconSize[1]+5],  
+        iconAnchor: displayIconAnchor,
+        popupAnchor: displayPopupAnchor  
+    });
+    const pointeur = document.getElementById('pointer');
+    let displayPointeur;
+    let pointer_on = false;
+    pointeur.addEventListener('click', () => {
+        if(!pointer_on){
+            pointer_on = true;
+            displayPointeur = L.marker([localStorage.getItem("userY"), localStorage.getItem("userX")], { icon: IconPointeur, draggable: true }).addTo(map);
+
+            displayPointeur.on('dragend', (event) => {
+                const position = event.target.getLatLng();
+                console.log("pointeur nouvelle position de recherche ",position);
+                localStorage.setItem("userX",position.lng);
+                localStorage.setItem("userY",position.lat);
+                updateDisplayActivity();
+            });
+        }
+        else{
+            map.setView([localStorage.getItem("userY"),localStorage.getItem("userX")],map.getZoom());
+        }
+        
+    });    
     /* === FONCTIONS UTILITAIRES === */
     // Calculer la distance entre deux points (Haversine) - merci Internet :)
     function haversineDistance(lat1, lon1, lat2, lon2) {
@@ -420,7 +448,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 map.removeLayer(layer);
             }
         });
-        
+        if(displayPointeur !== undefined){displayPointeur.addTo(map);}
         console.log("Map clear")
     }
 
