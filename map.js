@@ -4,24 +4,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     // fichier avec l'ensemble des données 
     const fichierGeoNom = 'merged.geojson';
 
-    const baseUrl = window.location.origin; 
-
-    let geojsonData;
-    let geojsonLayer;
-    let map = L.map('map').setView([48.8566, 2.3522], 11); // Cpar defaut sur paris
+    const baseUrl = window.location.origin;
 
     // position de l'utilisateur (par defaut sur paris)
-    localStorage.setItem("userY",48.8566);
-    localStorage.setItem('userX',2.3522);
+    if (localStorage.getItem('userX') === null || localStorage.getItem('userY') === null) {
+        localStorage.setItem("userY",48.8566);
+        localStorage.setItem('userX',2.3522);
+        localStorage.setItem("userRayon",15);
+    }
+    let geojsonData;
+    let geojsonLayer;
+
+    let geojsonLayers = {};
+
     // rayon de recherche de l'utilisateur en Km (pas defaut à 40km)
-    localStorage.setItem("userRayon",8);
+    let map = L.map('map').setView([localStorage.getItem("userY"), localStorage.getItem("userX")], 12);
 
     const tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
         attribution: '&copy;<a href="https://www.openstreetmap.org/copyright">OSM</a>',
         maxZoom: 19,
     }).addTo(map);
-
-
 
     // display :
     const displayIconSize = [22, 22];
@@ -53,6 +55,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         popupAnchor: displayPopupAnchor  
     });
     const pointeur = document.getElementById('pointer');
+    // pointer.style.cursor = "grab";
     let displayPointeur;
     let pointer_on = false;
     pointeur.addEventListener('click', () => {
@@ -62,11 +65,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             displayPointeur.on('dragend', (event) => {
                 const position = event.target.getLatLng();
-                console.log("pointeur nouvelle position de recherche ",position);
-                localStorage.setItem("userX",position.lng);
-                localStorage.setItem("userY",position.lat);
+                console.log("pointeur nouvelle position de recherche ", position);
+                localStorage.setItem("userX", position.lng);
+                localStorage.setItem("userY", position.lat);
                 updateDisplayActivity();
+                populateActivities();
             });
+
         }
         else{
             map.setView([localStorage.getItem("userY"),localStorage.getItem("userX")],map.getZoom());
@@ -126,7 +131,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             const response = await fetch(fichierGeoNom);
             geojsonData = await response.json();
-            console.log("Fichier GeoJSON chargé avec succès.");
+            console.log("✅ ─ Fichier GeoJSON chargé avec succès.");
+            populateActivities();
         } catch (error) {
             console.error("Erreur lors du chargement du fichier GeoJSON :", error);
         }
@@ -147,6 +153,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 },
                 onEachFeature: (feature, layer) => {
                     if (feature.properties && feature.properties.nom) {
+                        const googleMapsLink = `https://www.google.com/maps/dir/${localStorage.getItem('userY')},${localStorage.getItem('userX')}/${feature.geometry.coordinates[1]},${feature.geometry.coordinates[0]}`;
                         layer.bindPopup(`
                             <div>
                                 <div>
@@ -155,6 +162,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 </div>
                                 <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">adresse : ${feature.properties.adresse}</p>
                                 <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Propriétaire : ${feature.properties.proprietaire}</p>
+                                <a href="${googleMapsLink}" target="_blank" style="color: blue; text-decoration: underline;">Itinéraire Google Maps</a>
                             </div>
                         `);
                     }
@@ -171,7 +179,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                     return L.marker(latlng, { icon: cinemaIcon });
                 },
                 onEachFeature: (feature, layer) => {
-                    if (feature.properties && feature.properties.nom_jardin) {
+                    if (feature.properties && feature.properties.nom) {
+                        const googleMapsLink = `https://www.google.com/maps/dir/${localStorage.getItem('userY')},${localStorage.getItem('userX')}/${feature.geometry.coordinates[1]},${feature.geometry.coordinates[0]}`;
                         let siteWebLinks = '';
                         
                         // avoir plusieurs liens 
@@ -207,10 +216,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                             <div>
                                 <div>
                                     <img src="${baseUrl + '/images/jardin.png'}" width="20" height="20" style="vertical-align: middle;">
-                                    <h3 style="margin: 0; color: ${jardinColor}; display: inline; vertical-align: middle;">${feature.properties.nom_jardin}</h3>
+                                    <h3 style="margin: 0; color: ${jardinColor}; display: inline; vertical-align: middle;">${feature.properties.nom}</h3>
                                 </div>
                                 <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Adresse : ${feature.properties.adresse_complete}</p>
                                 ${siteWebLinks}
+                                <a href="${googleMapsLink}" target="_blank" style="color: blue; text-decoration: underline;">Itinéraire Google Maps</a>
                                 <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Type de jardin : ${feature.properties.types_jadrin}</p>
                                 <span class="description">${truncatedDescription}</span>
                                 ${readMoreButton}
@@ -255,6 +265,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 },
                 onEachFeature: (feature, layer) => {
                     if (feature.properties && feature.properties.nom) {
+                        const googleMapsLink = `https://www.google.com/maps/dir/${localStorage.getItem('userY')},${localStorage.getItem('userX')}/${feature.geometry.coordinates[1]},${feature.geometry.coordinates[0]}`;
                         layer.bindPopup(`
                             <div>
                                 <div>
@@ -266,6 +277,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 <p style="margin: 0; font-size: 0.9em;">
                                     <a href="${"https://"+feature.properties.site_web}" target="_blank">Site web</a>
                                 </p>
+                                <a href="${googleMapsLink}" target="_blank" style="color: blue; text-decoration: underline;">Itinéraire Google Maps</a>
                             </div>
                         `);
                     }
@@ -283,6 +295,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 },
                 onEachFeature: (feature, layer) => {
                     if (feature.properties && feature.properties.nom) {
+                        const googleMapsLink = `https://www.google.com/maps/dir/${localStorage.getItem('userY')},${localStorage.getItem('userX')}/${feature.geometry.coordinates[1]},${feature.geometry.coordinates[0]}`;
                         // description trop longue
                         let description = feature.properties.description || '';
                         const MAX_DESCRIPTION_LENGTH = 200;
@@ -299,6 +312,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 <div>
                                     <img src="${baseUrl + '/images/ski.png'}" width="20" height="20" style="vertical-align: middle;">
                                     <h3 style="margin: 0; color: ${skiColor}; display: inline; vertical-align: middle;">${feature.properties.nom.charAt(0).toUpperCase() + feature.properties.nom.slice(1)}</h3>
+                                    <br><a href="${googleMapsLink}" target="_blank" style="color: blue; text-decoration: underline;">Itinéraire Google Maps</a>
                                 </div>
                                 
                             </div>
@@ -339,11 +353,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                 },
                 onEachFeature: (feature, layer) => {
                     if (feature.properties && feature.properties.nom) {
+                        const googleMapsLink = `https://www.google.com/maps/dir/${localStorage.getItem('userY')},${localStorage.getItem('userX')}/${feature.geometry.coordinates[1]},${feature.geometry.coordinates[0]}`;
                         layer.bindPopup(`
                             <div>
                                 <div>
                                     <img src="${baseUrl + '/images/attraction.png'}" width="20" height="20" style="vertical-align: middle;">
                                     <h3 style="margin: 0; color: ${attractionColor}; display: inline; vertical-align: middle;">${feature.properties.nom}</h3>
+                                    <br><a href="${googleMapsLink}" target="_blank" style="color: blue; text-decoration: underline;">Itinéraire Google Maps</a>
                                 </div>
                             </div>
                         `);
@@ -362,6 +378,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 },
                 onEachFeature: (feature, layer) => {
                     if (feature.properties && feature.properties.nom) {
+                        const googleMapsLink = `https://www.google.com/maps/dir/${localStorage.getItem('userY')},${localStorage.getItem('userX')}/${feature.geometry.coordinates[1]},${feature.geometry.coordinates[0]}`;
                         layer.bindPopup(`
                             <div>
                                 <div>
@@ -371,7 +388,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Ville : ${feature.properties.departement} - ${feature.properties.commune}</p>
                                 <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Type équipement : ${feature.properties.famille_equipement}</p>
                                 <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Zone : ${feature.properties.zone}</p>
-
+                                <a href="${googleMapsLink}" target="_blank" style="color: blue; text-decoration: underline;">Itinéraire Google Maps</a>
                             </div>
                         `);
                     }
@@ -389,6 +406,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 },
                 onEachFeature: (feature, layer) => {
                     if (feature.properties && feature.properties.nom) {
+                        const googleMapsLink = `https://www.google.com/maps/dir/${localStorage.getItem('userY')},${localStorage.getItem('userX')}/${feature.geometry.coordinates[1]},${feature.geometry.coordinates[0]}`;
                         layer.bindPopup(`
                             <div>
                                 <div>
@@ -402,6 +420,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                                 <p style="margin: 0; font-size: 0.9em;">
                                     <a href="${feature.properties.site_web}" target="_blank">Site web</a>
                                 </p>
+                                <a href="${googleMapsLink}" target="_blank" style="color: blue; text-decoration: underline;">Itinéraire Google Maps</a>
                             </div>
                         `);
                     }
@@ -422,6 +441,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             },
             onEachFeature: (feature, layer) => {
                 if (feature.properties && feature.properties.nom) {
+                    const googleMapsLink = `https://www.google.com/maps/dir/${localStorage.getItem('userY')},${localStorage.getItem('userX')}/${feature.geometry.coordinates[1]},${feature.geometry.coordinates[0]}`;
                     layer.bindPopup(`
                         <div>
                             <div>
@@ -431,7 +451,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Ville : ${feature.properties.departement} - ${feature.properties.commune}</p>
                             <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Type équipement : ${feature.properties.famille_equipement}</p>
                             <p style="margin: 0; font-size: 0.9em; color: ${greyColor};">Zone : ${feature.properties.zone}</p>
-
+                            <a href="${googleMapsLink}" target="_blank" style="color: blue; text-decoration: underline;">Itinéraire Google Maps</a>
                         </div>
                     `);
                 }
@@ -459,16 +479,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     /// necessite :
     ///     La position de l'utilisateur (userX et userY)
     ///     Le rayon de recherche (userRayon)
-    async function addElementToMap(type){
-        if (localStorage.getItem('userX') !== null && localStorage.getItem('userY') !== null && localStorage.getItem('userRayon') !== null && type !== null){
+    async function addElementToMap(type) {
+        if (localStorage.getItem('userX') !== null && localStorage.getItem('userY') !== null && localStorage.getItem('userRayon') !== null && type !== null) {
             const filteredData = getFilter(type);
-            const displayOptions = getDisplayOptions(type); // pour avoir un affichage diff pour chaque type.
-            console.log("élement ajouter à la map,",type)
-            geojsonLayer = L.geoJSON(filteredData, {
+            const displayOptions = getDisplayOptions(type);
+            console.log("✅ ─ \x1b[32m" + type + "\x1b[0m ajouté à la map.");
+            if (geojsonLayers[type]) {
+                map.removeLayer(geojsonLayers[type]);
+            }
+            geojsonLayers[type] = L.geoJSON(filteredData, {
                 ...displayOptions,
             }).addTo(map);
-        }
-        else{
+        } else {
             console.log("[Erreur] - addElementToMap - faild - l'une des données est nulle");
             return;
         }
@@ -485,7 +507,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const nbSimple = simpleActivities.length;
         const nbEquipments = equipmentActivities.length;
-        console.log(nbSimple, nbEquipments);
+        //console.log(nbSimple, nbEquipments);
 
         const nbActivitesDiv = document.getElementById('nbActivites');
         if (nbActivitesDiv) {
@@ -502,7 +524,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         updateActivityCount();
         updateDisplayActivity();
-
+        populateActivities();
     }
 
     /// Permet de mettre à jour la carte selon les activités sélectionnées
@@ -523,6 +545,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         localStorage.setItem('selectedActivities', JSON.stringify(selectedActivities));
         updateActivityCount();
         updateDisplayActivity();
+        populateActivities();
     }
 
     // Récupère toutes les activités sélectionnées sur le localstorage
@@ -530,9 +553,182 @@ document.addEventListener("DOMContentLoaded", async () => {
         return JSON.parse(localStorage.getItem('selectedActivities')) || [];
     }
 
-    /* === FONCTIONS PRINCIPALES === */
-    
+    function attachSubItemToggleEvent() {
+        document.querySelectorAll('.child-toggle').forEach(toggle => {
+            toggle.addEventListener('click', event => {
+                event.stopPropagation();
+                const subItem = toggle.closest('.accordion-subitem');
+                const subContent = subItem.querySelector('.accordion-subcontent');
 
+                if (subItem.classList.contains('open')) {
+                    subItem.classList.remove('open');
+                    subContent.style.maxHeight = null;
+                } else {
+                    subItem.classList.add('open');
+                    subContent.style.maxHeight = subContent.scrollHeight + 'px';
+                }
+
+                // Gérer la rotation de la flèche uniquement pour le sous-menu
+                const arrow = toggle.querySelector('.arrow-icon');
+                arrow.style.transform = subItem.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+            });
+        });
+    }
+
+
+    function populateActivities() {
+        const selectedActivities = JSON.parse(localStorage.getItem('selectedActivities')) || [];
+        const userX = parseFloat(localStorage.getItem('userX')) || 2.3522;
+        const userY = parseFloat(localStorage.getItem('userY')) || 48.8566;
+        const userRayon = parseFloat(localStorage.getItem('userRayon')) || 8;
+
+        const accordionItems = document.querySelectorAll('.accordion-item');
+        accordionItems.forEach(item => {
+            const category = item.dataset.category;
+            const content = item.querySelector('.accordion-content');
+            content.innerHTML = '';
+
+            if (selectedActivities.includes(category)) {
+                const filteredData = geojsonData.features.filter(feature => {
+                    const [lon, lat] = feature.geometry.coordinates;
+                    const distance = haversineDistance(userY, userX, lat, lon);
+                    return (
+                        distance <= userRayon &&
+                        feature.properties.type.toLowerCase() === category.toLowerCase()
+                    );
+                });
+
+                if (filteredData.length > 0) {
+                    filteredData.forEach(feature => {
+                        const activityHTML = `
+                    <div class="activity">
+                        <div class="activity_principal">
+                            <div class="activity_title">${feature.properties.nom}</div>
+                            <div class="activity_place">${feature.properties.commune || 'Lieu inconnu'}</div>
+                        </div>
+                        <div class="activity_distance">à ${haversineDistance(userY, userX, feature.geometry.coordinates[1], feature.geometry.coordinates[0]).toFixed(2)} km</div>
+                    </div>
+                `;
+                        content.innerHTML += activityHTML;
+                    });
+                } else {
+                    content.innerHTML = `<p>Aucune activité "${category}" n'existe dans ce périmètre.</p>`;
+                }
+            } else {
+                content.innerHTML = `<p>Vous n'avez pas sélectionné d'activités "${category}".</p>`;
+            }
+        });
+
+        // Gestion des équipements sportifs
+        const equipmentsContent = document.querySelector('.accordion-item[data-category="equipements"] .accordion-content');
+        equipmentsContent.innerHTML = '';
+
+        const selectedEquipments = selectedActivities.filter(activity => {
+            return !['cinema', 'musee', 'jardin', 'festival', 'ski', 'attraction'].includes(activity.toLowerCase());
+        });
+
+        selectedEquipments.forEach(equipement => {
+            const filteredEquipments = geojsonData.features.filter(feature => {
+                const [lon, lat] = feature.geometry.coordinates;
+                const distance = haversineDistance(userY, userX, lat, lon);
+                return (
+                    distance <= userRayon &&
+                    feature.properties.types_equipement &&
+                    feature.properties.types_equipement.toLowerCase() === equipement.toLowerCase()
+                );
+            });
+
+            if (filteredEquipments.length > 0) {
+                const subItemHTML = `
+            <div class="accordion-subitem">
+                <div class="accordion-subheader child-toggle">
+                    <span class="subitem-title">${equipement}</span>
+                    <div class="accordion-toggle">
+                        <img src="images/arrow_down.png" class="arrow-icon" alt="Toggle">
+                    </div>
+                </div>
+                ${filteredEquipments.map(feature => `
+                    <div class="accordion-subcontent">
+                        <div class="activity">
+                            <div class="activity_principal">
+                                <div class="activity_title">${feature.properties.nom}</div>
+                                <div class="activity_place">${feature.properties.commune || 'Lieu inconnu'}</div>
+                            </div>
+                            <div class="activity_distance">à ${haversineDistance(userY, userX, feature.geometry.coordinates[1], feature.geometry.coordinates[0]).toFixed(2)} km</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+                equipmentsContent.innerHTML += subItemHTML;
+            }
+        });
+
+        attachSubItemToggleEvent();
+        centerMapOnActivity();
+    }
+
+    function centerMapOnActivity() {
+        const activityElements = document.querySelectorAll('.activity');
+        activityElements.forEach(activity => {
+            activity.addEventListener('click', () => {
+                const activityTitle = activity.querySelector('.activity_title').textContent;
+
+                const activityType = activity.closest('.accordion-item').dataset.category;
+                const matchingFeature = geojsonData.features.find(feature =>
+                    feature.properties.nom === activityTitle
+                );
+
+                if (matchingFeature) {
+                    const [lon, lat] = matchingFeature.geometry.coordinates;
+                    map.setView([lat, lon], 14);
+
+                    Object.values(geojsonLayers).forEach(layerGroup => {
+                        layerGroup.eachLayer(layer => {
+                            if (
+                                layer.feature.properties.nom === activityTitle &&
+                                layer.feature.properties.type.toLowerCase() === activityType.toLowerCase()
+                            ) {
+                                layer.openPopup();
+                            }
+                        });
+                    });
+                } else {
+                    console.warn(`Aucune activité trouvée pour le titre : ${activityTitle}`);
+                }
+            });
+        });
+    }
+
+
+    function filterActivities() {
+        const searchInput = document.getElementById('activity-searchInput');
+        const searchTerm = searchInput.value.toLowerCase();
+
+        const accordionItems = document.querySelectorAll('.accordion-item');
+
+        accordionItems.forEach(item => {
+            const category = item.dataset.category;
+            const content = item.querySelector('.accordion-content');
+            const activities = content.querySelectorAll('.activity');
+            let hasMatchingActivity = false;
+
+            activities.forEach(activity => {
+                const title = activity.querySelector('.activity_title').textContent.toLowerCase();
+                if (title.includes(searchTerm)) {
+                    activity.style.display = ''; // Afficher l'activité
+                    hasMatchingActivity = true;
+                } else {
+                    activity.style.display = 'none'; // Masquer l'activité
+                }
+            });
+            if (!hasMatchingActivity) {
+                content.innerHTML = `<p>Aucune activité correspondante dans "${category}".</p>`;
+            }
+        });
+    }
+
+    /* === FONCTIONS PRINCIPALES === */
     function getAllTypes() {
         if (!geojsonData || !geojsonData.features) {
             console.error("Les données GeoJSON ne sont pas chargées.");
@@ -558,7 +754,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
     }
 
-
     /* === GESTION DE LA CARTE === */
     window.onload = async () => {
 
@@ -579,6 +774,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                     if (data.length > 0) {
                         const { lat, lon } = data[0];
+                        localStorage.setItem("userX",lon);
+                        localStorage.setItem("userY",lat);
+                        updateDisplayActivity();
+                        populateActivities();
                         map.setView([lat, lon], 12);
                     } else {
                         alert('Ville introuvable. Vérifie l’orthographe.');
@@ -591,6 +790,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Charger le GeoJSON
         await initGeoJsonFile();
+        // populateActivities();
         const {types, equipmentTypes} = getAllTypes();
 
         loader.style.display = "none";
@@ -722,7 +922,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             showOnlyChecked = !showOnlyChecked;
         });
 
-        // auto actualisation de la carte
+        document.getElementById('reset-equipments').addEventListener('click', () => {
+            let selectedActivities = JSON.parse(localStorage.getItem('selectedActivities')) || [];
+            selectedActivities = selectedActivities.filter(activity =>
+                ['ski', 'musee', 'jardin', 'festival', 'cinema', 'attraction'].includes(activity)
+            );
+            localStorage.setItem('selectedActivities', JSON.stringify(selectedActivities));
+            const equipmentCheckboxes = document.querySelectorAll('#equipment-list input[type="checkbox"]');
+            equipmentCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            updateActivityCount();
+            updateDisplayActivity();
+            populateActivities();
+        });
+
+        document.getElementById('activity-searchInput').addEventListener('input', filterActivities);
+
         updateActivityCount();
         updateDisplayActivity();
     };
@@ -734,21 +950,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     slider.addEventListener("input", () => {
         const value = slider.value;
         rangeValue.textContent = value < 1000 ? `${value}m` : `${(value / 1000).toFixed(1)}km`;
-        localStorage.setItem("userRayon",(value/1000))
+        localStorage.setItem("userRayon", (value / 1000));
         updateDisplayActivity();
+        populateActivities();
     });
 
-    // distances static
+    // distances static avec les boutons
     const staticElements = document.querySelectorAll(".static-distance");
     let selectedDistance = 0;
     staticElements.forEach(button => {
         button.addEventListener('click', function() {
             selectedDistance = parseInt(button.getAttribute('data-value'));
-            localStorage.setItem("userRayon",(selectedDistance/1000))
+            localStorage.setItem("userRayon",(selectedDistance/1000));
+            slider.value = selectedDistance;
+            rangeValue.textContent = selectedDistance < 1000 ? `${selectedDistance}m` : `${(selectedDistance / 1000).toFixed(1)}km`;
             updateDisplayActivity();
+            populateActivities();
         });
     });
-    
 
     // Sélection des activités
     document.querySelectorAll('.activity-item').forEach(item => {
@@ -759,5 +978,53 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     });
 
+    // gestion des accordéons sur la droite
+    document.querySelectorAll('.parent-toggle').forEach(toggle => {
+        toggle.addEventListener('click', event => {
+            event.stopPropagation();
+            const parentItem = toggle.closest('.accordion-item');
+            const content = parentItem.querySelector('.accordion-content');
 
+            if (parentItem.classList.contains('open')) {
+                parentItem.classList.remove('open');
+                closeAllChildren(content);
+                content.style.maxHeight = null;
+            } else {
+                parentItem.classList.add('open');
+            }
+
+            const arrow = toggle.querySelector('.arrow-icon');
+            arrow.style.transform = parentItem.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+        });
+    });
+
+    document.querySelectorAll('.child-toggle').forEach(toggle => {
+        toggle.addEventListener('click', event => {
+            event.stopPropagation();
+            const subItem = toggle.closest('.accordion-subitem');
+            const subContent = subItem.querySelector('.accordion-subcontent');
+
+            if (subItem.classList.contains('open')) {
+                subItem.classList.remove('open');
+                subContent.style.maxHeight = null;
+            } else {
+                subItem.classList.add('open');
+                subContent.style.maxHeight = subContent.scrollHeight + 'px';
+            }
+
+            const arrow = toggle.querySelector('.arrow-icon');
+            arrow.style.transform = subItem.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+        });
+    });
+
+    function closeAllChildren(content) {
+        const children = content.querySelectorAll('.accordion-item.open, .accordion-subitem.open');
+        children.forEach(child => {
+            child.classList.remove('open');
+            const childContent = child.querySelector('.accordion-content, .accordion-subcontent');
+            if (childContent) {
+                childContent.style.maxHeight = null;
+            }
+        });
+    }
 });

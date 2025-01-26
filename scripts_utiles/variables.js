@@ -11,7 +11,7 @@ let map = L.map('map').setView([48.8566, 2.3522], 11); // Cpar defaut sur paris
 // position de l'utilisateur (par defaut sur paris)
 localStorage.setItem("userY",48.8566);
 localStorage.setItem('userX',2.3522);
-// rayon de recherche de l'utilisateur en Km (pas defaut à 40km)
+// rayon de recherche de l'utilisateur en Km (par defaut à 40km)
 localStorage.setItem("userRayon",8);
 
 const tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {

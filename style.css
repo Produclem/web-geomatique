@@ -58,9 +58,7 @@ input[type="checkbox"] {
         margin: 10px;
     }
 }
-.containerRight{
-    flex: 1;
-}
+
 #search{
     display: flex;
     gap: 10px;
@@ -74,7 +72,7 @@ input[type="checkbox"] {
         width: 25px;
         height: 25px;
         &:hover{
-            cursor: grab;
+            cursor: pointer;
         }
     }
 }
@@ -214,62 +212,132 @@ input[type="checkbox"] {
     font-size: 18px;
 }
 
-.activities{
-    &>div:first-child{
-        display: flex;
-        justify-content: center;
-    }
-    & h2 {
-        color: #555555;
-    }
-}
-.activity {
-    background-color: #fff;
-    box-shadow: #00000029 0 4px 7px 0;
-    border-radius: 10px;
-    padding: 5px;
-    position: relative;
-    & .activity_title {
-        font-size: 18px;
-        font-weight: bold;
-        margin: 10px;
-    }
-    & .activity_place {
-        font-size: 14px;
-        color: #555555;
-        margin: -5px 0 0 10px;
-    }
-    & .activity_type {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        font-weight: bold;
-    }
-    & .activity_description {
-        font-family: 'SFPro_L', sans-serif;
-        font-size: 16px;
-        margin: 10px;
-        padding-top: 10px;
-        border-top: #00000045 solid 1px;
-    }
-    & .activity_distance {
-        font-size: 18px;
-        margin: 10px;
-    }
-}
-.colorCine {
-    color: #CE2EDD;
-}
-.colorAqua {
-    color: #2EDDCE;
-}
-.colorParc {
-    color: #DD2E44;
-}
-.colorFestival {
-    color: #DDCE2E;
+/* ==================================== DEBUT CONTAINER RIGHT ==================================== */
+.containerRight {
+    flex: 1;
 }
 
+.activities > div:first-child {
+    display: flex;
+    justify-content: center;
+}
+.activities h2 {
+    color: #555555;
+}
+.listActivities {
+    margin-top: 6px;
+    padding: 1px 10px 10px;
+    border-radius: 10px;
+    background-color: #fff;
+    height: 85vh;
+    overflow-y: scroll;
+}
+.arrow-icon {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.accordion-item.open .arrow-icon {
+    transform: rotate(180deg);
+}
+.accordion-item {
+    margin: 10px 0;
+    overflow: hidden;
+    border-bottom: solid 0px #ddd;
+}
+.accordion-header, .accordion-subheader {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #ddd;
+}
+.accordion-subheader {
+    justify-content: space-between;
+}
+.accordion-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+.accordion-title {
+    flex-grow: 1;
+    font-size: 16px;
+    font-weight: bold;
+}
+.accordion-toggle {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    transform: rotate(0deg);
+    transition: transform 0.3s ease;
+}
+.accordion-content {
+    overflow-y: scroll;
+    max-height: 0;
+    transition: max-height 0.3s ease-out;
+}
+.accordion-item.open .accordion-content {
+    max-height: 40vh;
+}
+.accordion-subitem {
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(10px);
+}
+.accordion-subcontent {
+    overflow: hidden;
+    max-height: 0;
+    padding: 0;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+}
+.accordion-subitem.open .accordion-subcontent {
+    max-height: 40vh;
+}
+.activity {
+    background-color: #f1f1f1;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+}
+.activity:hover {
+    background-color: #d0d0d0;
+    cursor: pointer;
+}
+.activity_title {
+    font-size: 16px;
+    font-weight: bold;
+}
+.activity_place {
+    font-size: 14px;
+    color: #555;
+}
+.activity_description {
+    font-size: 14px;
+    margin: 10px 0;
+    color: #666;
+}
+.activity_distance {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.search-bar>input {
+    width: 94%;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 1rem;
+    border: none;
+    outline: none;
+}
+
+/* ==================================== FIN CONTAINER RIGHT ==================================== */
 /* Liste des types d'activites */
 .parentTypeActivite{
     background-color: #ffffff;

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Activités proches !</title>
+    <link rel="icon" type="image/png" href="images/cinema.png">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <link rel="stylesheet" href="style.css">
@@ -15,7 +16,7 @@
 <div class="containerLeft">
     <div id="search">
         <div class="searchInput white">
-            <input type="text" placeholder="Rechercher..." id="searchInput">
+            <input type="text" placeholder="Rechercher une ville..." id="searchInput">
         </div>
         <div class="pointer white">
             <img src="images/pointer.png" alt="Pointer" id="pointer">
@@ -31,24 +32,24 @@
             <input type="range" min="500" max="100000" value="15000" step="1" class="slider" id="rangeSlider">
             <div class="transport-icons">
                 <div>
-                    <div><img src="images/nike.png" alt="Walking" class="static-distance" data-value="500"></div>
-                    <span>500m</span>
-                </div>
-                <div>
                     <div><img src="images/nike.png" alt="Walking" class="static-distance" data-value="1000"></div>
                     <span>1km</span>
                 </div>
                 <div>
-                    <div><img src="images/bike.png" alt="Bike" class="static-distance" data-value="5000"></div>
+                    <div><img src="images/nike.png" alt="Walking" class="static-distance" data-value="5000"></div>
                     <span>5km</span>
                 </div>
                 <div>
-                    <div><img src="images/bike.png" alt="Bike" class="static-distance" data-value="10000"></div>
-                    <span>10km</span>
+                    <div><img src="images/bike.png" alt="Bike" class="static-distance" data-value="15000"></div>
+                    <span>15km</span>
                 </div>
                 <div>
-                    <div><img src="images/car.png" alt="Car" class="static-distance" data-value="20000"></div>
-                    <span>20km</span>
+                    <div><img src="images/car.png" alt="Car" class="static-distance" data-value="30000"></div>
+                    <span>30km</span>
+                </div>
+                <div>
+                    <div><img src="images/car.png" alt="Car" class="static-distance" data-value="50000"></div>
+                    <span>50km</span>
                 </div>
             </div>
         </div>
@@ -68,15 +69,79 @@
         <div>
             <h2>Activités</h2>
         </div>
+        <div class="search-bar">
+            <input type="text" id="activity-searchInput" placeholder="Rechercher une activité..." />
+        </div>
         <div class="listActivities">
-            <div class="activity">
-                <div class="activity_title">Cinéma Pathé Gaumont</div>
-                <div class="activity_place">75016 - Paris</div>
-                <div class="activity_type colorCine">CINEMA</div>
-                <div class="activity_description">
-                    Cinema plutot sympa situé en centre ville avec plus de 13 salles dont 2 en IMAX, et une en dolby digital.
+            <div class="accordion-item" data-category="cinema">
+                <div class="accordion-header parent-toggle">
+                    <img src="images/cinema.png" alt="Icon Cinema" class="accordion-icon">
+                    <span class="accordion-title">Cinéma</span>
+                    <div class="accordion-toggle">
+                        <img src="images/arrow_down.png" class="arrow-icon" alt="Toggle">
+                    </div>
                 </div>
-                <div class="activity_distance">à 355m...</div>
+                <div class="accordion-content"></div>
+            </div>
+            <div class="accordion-item" data-category="musee">
+                <div class="accordion-header parent-toggle">
+                    <img src="images/musee.png" alt="Icon Musee" class="accordion-icon">
+                    <span class="accordion-title">Musée</span>
+                    <div class="accordion-toggle">
+                        <img src="images/arrow_down.png" class="arrow-icon" alt="Toggle">
+                    </div>
+                </div>
+                <div class="accordion-content"></div>
+            </div>
+            <div class="accordion-item" data-category="attraction">
+                <div class="accordion-header parent-toggle">
+                    <img src="images/attraction.png" alt="Icon Attraction" class="accordion-icon">
+                    <span class="accordion-title">Parc d'attraction</span>
+                    <div class="accordion-toggle">
+                        <img src="images/arrow_down.png" class="arrow-icon" alt="Toggle">
+                    </div>
+                </div>
+                <div class="accordion-content"></div>
+            </div>
+            <div class="accordion-item" data-category="jardin">
+                <div class="accordion-header parent-toggle">
+                    <img src="images/jardin.png" alt="Icon Jardin" class="accordion-icon">
+                    <span class="accordion-title">Jardin</span>
+                    <div class="accordion-toggle">
+                        <img src="images/arrow_down.png" class="arrow-icon" alt="Toggle">
+                    </div>
+                </div>
+                <div class="accordion-content"></div>
+            </div>
+            <div class="accordion-item" data-category="festival">
+                <div class="accordion-header parent-toggle">
+                    <img src="images/festival.png" alt="Icon Festival" class="accordion-icon">
+                    <span class="accordion-title">Festival</span>
+                    <div class="accordion-toggle">
+                        <img src="images/arrow_down.png" class="arrow-icon" alt="Toggle">
+                    </div>
+                </div>
+                <div class="accordion-content"></div>
+            </div>
+            <div class="accordion-item" data-category="ski">
+                <div class="accordion-header parent-toggle">
+                    <img src="images/ski.png" alt="Icon ski" class="accordion-icon">
+                    <span class="accordion-title">Station de ski</span>
+                    <div class="accordion-toggle">
+                        <img src="images/arrow_down.png" class="arrow-icon" alt="Toggle">
+                    </div>
+                </div>
+                <div class="accordion-content"></div>
+            </div>
+            <div class="accordion-item" data-category="equipements">
+                <div class="accordion-header parent-toggle">
+                    <img src="images/equipement.png" alt="Icon Equipements" class="accordion-icon">
+                    <span class="accordion-title">Équipements Sportifs</span>
+                    <div class="accordion-toggle">
+                        <img src="images/arrow_down.png" class="arrow-icon" alt="Toggle">
+                    </div>
+                </div>
+                <div class="accordion-content"></div>
             </div>
         </div>
     </div>
@@ -90,6 +155,7 @@
         <div>
             <input type="text" id="search-bar" placeholder="Rechercher un équipement..." />
             <div><img src="images/checked.png" alt=":ok:"></div>
+            <div id="reset-equipments"><img src="images/bin.png" alt="RESET"></div>
         </div>
         <div id="equipment-list"></div>
     </div>
